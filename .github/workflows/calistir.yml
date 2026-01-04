@@ -3,15 +3,43 @@ on:
   workflow_dispatch:
     inputs:
       masa_adi:
-        description: 'Masa Adı (Örn: Masa 12, Masa 82 vb.)'
+        description: 'Gönderilecek Masayı Seçin'
         required: true
+        type: choice
+        options:
+          - "Masa 12"
+          - "Masa 15"
+          - "Masa 18"
+          - "Masa 20"
+          - "Masa 21"
+          - "Masa 22"
+          - "Masa 73"
+          - "Masa 82"
+          - "Masa 83"
+          - "Masa 85"
+          - "Masa 86"
+          - "Masa 87"
+          - "Masa 89"
+          - "Masa 90"
+          - "Masa 91"
+          - "Masa 93"
+          - "Masa 112"
+          - "Masa 113"
+          - "Masa 115B"
+          - "Masa 117"
+          - "Masa 118"
+          - "Masa 144"
       garson_adi:
-        description: 'Garson Adı'
+        description: 'Garson Adı Yazın'
         required: true
       cinsiyet:
-        description: 'Cinsiyet (Erkek, Kadın, Rastgele)'
+        description: 'Cinsiyet Seçin'
         required: true
-        default: 'Rastgele'
+        type: choice
+        options:
+          - 'Rastgele'
+          - 'Erkek'
+          - 'Kadın'
 
 jobs:
   build:
@@ -19,32 +47,12 @@ jobs:
     steps:
       - name: Kodları Çek
         uses: actions/checkout@v3
-
       - name: Python Kur
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-
       - name: Bağımlılıkları Kur
-        run: |
-          pip install selenium faker webdriver-manager
-
+        run: pip install selenium faker webdriver-manager
       - name: Botu Çalıştır
         run: |
-          python -c "
-          from bot_core import ana_gorev_calistir
-          from config import MASA_LINKLERI
-          import sys
-
-          masa = '${{ github.event.inputs.masa_adi }}'
-          garson = '${{ github.event.inputs.garson_adi }}'
-          cinsiyet = '${{ github.event.inputs.cinsiyet }}'
-
-          if masa in MASA_LINKLERI:
-              url = MASA_LINKLERI[masa]
-              print(f'{masa} için işlem başlatılıyor: {url}')
-              print(ana_gorev_calistir(url, cinsiyet, garson))
-          else:
-              print(f'HATA: {masa} config.py içinde bulunamadı!')
-              sys.exit(1)
-          "
+          python -c "from bot_core import ana_gorev_calistir; from config import MASA_LINKLERI; print(ana_gorev_calistir(MASA_LINKLERI['${{ github.event.inputs.masa_adi }}'], '${{ github.event.inputs.cinsiyet }}', '${{ github.event.inputs.garson_adi }}'))"
