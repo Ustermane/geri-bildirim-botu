@@ -1,0 +1,29 @@
+name: Manuel Geri Bildirim Gönder
+on:
+  workflow_dispatch:
+    inputs:
+      masa_adi:
+        description: 'Masa Adı (Örn: Masa 12)'
+        required: true
+      garson_adi:
+        description: 'Garson Adı'
+        required: true
+      cinsiyet:
+        description: 'Cinsiyet'
+        required: true
+        default: 'Rastgele'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodları Çek
+        uses: actions/checkout@v3
+      - name: Python Kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Gereksinimleri Kur
+        run: pip install selenium faker
+      - name: Botu Çalıştır
+        run: python -c "from bot_core import ana_gorev_calistir; from config import MASA_LINKLERI; print(ana_gorev_calistir(MASA_LINKLERI['${{ github.event.inputs.masa_adi }}'], '${{ github.event.inputs.cinsiyet }}', '${{ github.event.inputs.garson_adi }}'))"
