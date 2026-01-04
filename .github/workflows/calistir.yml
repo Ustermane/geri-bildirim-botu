@@ -3,13 +3,13 @@ on:
   workflow_dispatch:
     inputs:
       masa_adi:
-        description: 'Masa Adı (Örn: Masa 12)'
+        description: 'Masa Adı (Örn: Masa 12, Masa 82 vb.)'
         required: true
       garson_adi:
         description: 'Garson Adı'
         required: true
       cinsiyet:
-        description: 'Cinsiyet'
+        description: 'Cinsiyet (Erkek, Kadın, Rastgele)'
         required: true
         default: 'Rastgele'
 
@@ -19,11 +19,32 @@ jobs:
     steps:
       - name: Kodları Çek
         uses: actions/checkout@v3
+
       - name: Python Kur
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-      - name: Gereksinimleri Kur
-        run: pip install selenium faker
+
+      - name: Bağımlılıkları Kur
+        run: |
+          pip install selenium faker webdriver-manager
+
       - name: Botu Çalıştır
-        run: python -c "from bot_core import ana_gorev_calistir; from config import MASA_LINKLERI; print(ana_gorev_calistir(MASA_LINKLERI['${{ github.event.inputs.masa_adi }}'], '${{ github.event.inputs.cinsiyet }}', '${{ github.event.inputs.garson_adi }}'))"
+        run: |
+          python -c "
+          from bot_core import ana_gorev_calistir
+          from config import MASA_LINKLERI
+          import sys
+
+          masa = '${{ github.event.inputs.masa_adi }}'
+          garson = '${{ github.event.inputs.garson_adi }}'
+          cinsiyet = '${{ github.event.inputs.cinsiyet }}'
+
+          if masa in MASA_LINKLERI:
+              url = MASA_LINKLERI[masa]
+              print(f'{masa} için işlem başlatılıyor: {url}')
+              print(ana_gorev_calistir(url, cinsiyet, garson))
+          else:
+              print(f'HATA: {masa} config.py içinde bulunamadı!')
+              sys.exit(1)
+          "
